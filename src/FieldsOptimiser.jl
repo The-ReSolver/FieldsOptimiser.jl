@@ -15,8 +15,8 @@ function myfinalize!(x, f, g, numiter)
     return x, f, g
 end
 
-function init_fg(cache::Cache)
-    function fg(U)
+function init_ℜdℜ(cache::Cache)
+    function ℜdℜ(U)
         update_v!(U, cache)
         update_p!(cache)
         localresidual!(U, cache)
@@ -31,11 +31,7 @@ function optimize(U₀::V, mean::NTuple{4, Vector{T}}; algorithm=ConjugateGradie
     # TODO: initialise cache properly
     _cache = 1.0
 
-    # define optimiser function
-    function ℜdℜ(U; cache=_cache)
-        r = localresidual!(U, cache)
-        return ℜ(r), dℜ!(r, cache)
-    end
+    # initialise objective function
 
     # run optimisation
     # FIXME: method call error?

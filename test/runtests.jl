@@ -22,9 +22,7 @@ using NSOperators
                     PhysicalField(grid, v_fun),
                     PhysicalField(grid, w_fun))
     U = VectorField(grid)
-    # FIXME: why does FFTW need to be imported for this line?
-    # FFT! = FFTPlan!(grid; flags=FFTW.ESTIMATE)
-    FFT! = FFTPlan!(grid)
+    FFT! = FFTPlan!(grid; flags=UInt32(64)) # FFTW.ESTIMATE = UInt32(64)
     FFT!(U, u)
     Re = abs(rand())
     Ro = abs(rand())

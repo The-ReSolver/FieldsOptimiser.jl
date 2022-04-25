@@ -14,22 +14,19 @@ using Projector
 
 export optimize
 
-function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)
-    # initialise temporary field
-    div_U = similar(cache.spec_cache[1])
+# TODO: consult performance tips on how to make function closure performant (use FastClosures?)
 
+function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)
     function myfinalize!(U, ℜ, dℜ, numiter)
-        # calculate divergence
-        div_U = cache.spec_cache[11] .+ cache.spec_cache[6]
+        # calculate residual norm at the wall
         @views begin
-            slip_norm = sqrt(norm(U[1, :, :])^2 + norm(U[end, :, :])^2)
             res_norm = sqrt(norm(cache.spec_cache[36][1, :, :])^2 + norm(cache.spec_cache[36][end, :, :])^2 +
                             norm(cache.spec_cache[37][1, :, :])^2 + norm(cache.spec_cache[37][end, :, :])^2 +
                             norm(cache.spec_cache[38][1, :, :])^2 + norm(cache.spec_cache[38][end, :, :])^2)
         end
 
         # print relevant statistics
-        @printf io "||∇U|| = %0.6f     slip_norm = %0.6f     res_norm = %0.6f\n" norm(div_U) slip_norm res_norm
+        @printf io "res_norm = %0.6f\n" res_norm
 
         # perform projections
         leray!(U)
@@ -49,21 +46,23 @@ function init_ℜdℜ(cache::C) where {C}
     end
 end
 
-# TODO: can the type parameter stuff be done with a different pattern?
-function optimize(U₀::V, mean::NTuple{3, Vector{T}}, Re::T, Ro::T; algorithm=ConjugateGradient()) where {T, S<:AbstractArray{Complex{T}, 3}, V<:AbstractVector{S}}
+# TODO: slip mean data into multiple arguments to be more consistent
+function OptimKit.optimize(U₀::AbstractVector{<:AbstractArray{Complex{T}, 3}}, mean::NTuple{3, Vector{T}}, Re::T, Ro::T; alg::OptimKit.OptimizationAlgorithm=ConjugateGradient()) where {T}
     # initialise cache
     _cache = Cache(U₀[1].grid, mean..., Re, Ro)
 
     # initialise projections
-    leray! = Leray!(U₀[1].grid)
-    slipcorrector! = SlipCorrector!(U₀[1].grid)
+    _leray! = Leray!(U₀)
+    _slipcorrector! = SlipCorrector!(U₀)
 
     # initialise finalisation function
+    myfinalize! = init_myfinalize!(_leray!, _slipcorrector!, _cache)
 
     # initialise objective function
+    ℜdℜ = init_ℜdℜ(_cache)
 
     # run optimisation
-    optimize(ℜdℜ, U₀, algorithm; finalize! = myfinalize!)
+    OptimKit.optimize(ℜdℜ, U₀, alg; finalize! = myfinalize!)
 end
 
 end

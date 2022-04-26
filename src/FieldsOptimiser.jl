@@ -36,14 +36,18 @@ function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)
     end
 end
 
-function init_ℜdℜ(cache::C) where {C}
-    function ℜdℜ(U)
-        update_v!(U, cache)
-        update_p!(cache)
-        localresidual!(U, cache)
-        update_r!(cache)
-        return ℜ(cache), dℜ!(cache) 
-    end
+struct ℜdℜClosure{C}
+    cache::C
+end
+
+function (f::ℜdℜClosure)(U::AbstractVector)
+    print("1: ")
+    update_v!(U, f.cache)
+    update_p!(f.cache)
+    localresidual!(U, f.cache)
+    update_r!(f.cache)
+    println(ℜ(f.cache))
+    return ℜ(f.cache), dℜ!(f.cache) 
 end
 
 # TODO: slip mean data into multiple arguments to be more consistent
@@ -59,7 +63,7 @@ function OptimKit.optimize(U₀::AbstractVector{<:AbstractArray{Complex{T}, 3}},
     myfinalize! = init_myfinalize!(_leray!, _slipcorrector!, _cache)
 
     # initialise objective function
-    ℜdℜ = init_ℜdℜ(_cache)
+    ℜdℜ = ℜdℜClosure(_cache)
 
     # run optimisation
     OptimKit.optimize(ℜdℜ, U₀, alg; finalize! = myfinalize!)

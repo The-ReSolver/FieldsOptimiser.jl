@@ -9,6 +9,8 @@ using Fields
 using NSOperators
 using Projector
 
+include("test_gd.jl")
+
 @testset "ℜdℜ function              " begin
     # # construct velocity field (incompressible and no-slip)
     # Ny = 64; Nz = 64; Nt = 64

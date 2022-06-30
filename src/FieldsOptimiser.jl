@@ -7,6 +7,8 @@ using LinearAlgebra
 using NSOperators
 using Projector
 
+include("gd.jl")
+
 # TODO: use "optimtest" to make sure gradient is compatible
 # TODO: still need to figure out way to structure this to avoid using my packages
 # TODO: access fields stored in cache using proper interface (methods???)
@@ -14,8 +16,7 @@ using Projector
 
 export optimize
 
-# TODO: consult performance tips on how to make function closure performant (use FastClosures?)
-
+# TODO: use functor instead of function closure to increase performance of finaliser
 function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)
     function myfinalize!(U, ℜ, dℜ, numiter)
         # calculate residual norm at the wall
@@ -46,7 +47,7 @@ function (f::ℜdℜClosure)(U::AbstractVector)
     update_p!(f.cache)
     localresidual!(U, f.cache)
     update_r!(f.cache)
-    println(ℜ(f.cache))
+    println(U[1][2, 2, 2])
     return ℜ(f.cache), dℜ!(f.cache) 
 end
 
@@ -66,7 +67,8 @@ function OptimKit.optimize(U₀::AbstractVector{<:AbstractArray{Complex{T}, 3}},
     ℜdℜ = ℜdℜClosure(_cache)
 
     # run optimisation
-    OptimKit.optimize(ℜdℜ, U₀, alg; finalize! = myfinalize!)
+    # OptimKit.optimize(ℜdℜ, U₀, alg; finalize! = myfinalize!)
+    OptimKit.optimize(ℜdℜ, U₀, alg)
 end
 
 end

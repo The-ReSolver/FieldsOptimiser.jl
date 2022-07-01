@@ -7,6 +7,7 @@ using LinearAlgebra
 using NSOperators
 using Projector
 
+include("fg.jl")
 include("gd.jl")
 
 # TODO: use "optimtest" to make sure gradient is compatible
@@ -37,21 +38,7 @@ function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)
     end
 end
 
-struct ℜdℜClosure{C}
-    cache::C
-end
-
-function (f::ℜdℜClosure)(U::AbstractVector)
-    print("1: ")
-    update_v!(U, f.cache)
-    update_p!(f.cache)
-    localresidual!(U, f.cache)
-    update_r!(f.cache)
-    println(U[1][2, 2, 2])
-    return ℜ(f.cache), dℜ!(f.cache) 
-end
-
-# TODO: slip mean data into multiple arguments to be more consistent
+# TODO: split mean data into multiple arguments to be more consistent
 function OptimKit.optimize(U₀::AbstractVector{<:AbstractArray{Complex{T}, 3}}, mean::NTuple{3, Vector{T}}, Re::T, Ro::T; alg::OptimKit.OptimizationAlgorithm=ConjugateGradient()) where {T}
     # initialise cache
     _cache = Cache(U₀[1].grid, mean..., Re, Ro)

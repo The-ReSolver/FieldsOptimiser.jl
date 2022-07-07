@@ -8,9 +8,11 @@ using ChebUtils
 using Fields
 using NSOperators
 using Projector
+using FDGrids
 
 include("test_gd.jl")
 
+# FIXME: this test will now fail, and is kinda pointless
 @testset "ℜdℜ function              " begin
     # # construct velocity field (incompressible and no-slip)
     # Ny = 64; Nz = 64; Nt = 64
@@ -28,7 +30,7 @@ include("test_gd.jl")
     #                 PhysicalField(grid, v_fun),
     #                 PhysicalField(grid, w_fun))
     # U = VectorField(grid)
-    # FFT! = FFTPlan!(grid; flags=UInt32(64)) # FFTW.ESTIMATE = UInt32(64)
+    # FFT! = FFTPlan!(grid; flags=ESTIMATE)
     # FFT!(U, u)
     # Re = abs(rand())
     # Ro = abs(rand())
@@ -61,6 +63,7 @@ include("test_gd.jl")
     # @test dℜ_opt == dℜ_man
 end
 
+# FIXME: projection now done in objective evaluation rather than optimisation finalisation
 @testset "Projection finalisation   " begin
     # # initialise velocity field (compressible and slipping)
     # Ny = 64; Nz = 64; Nt = 64

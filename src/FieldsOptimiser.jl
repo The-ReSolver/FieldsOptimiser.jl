@@ -15,7 +15,7 @@ include("gd.jl")
 # TODO: access fields stored in cache using proper interface (methods???)
 # TODO: can construct fields using type parameter (need to implement appropriate constructor tho)
 
-export optimize
+export optimize, gd!, ℜdℜClosure
 
 # TODO: use functor instead of function closure to increase performance of finaliser
 function init_myfinalize!(leray!, slipcorrector!, cache, io::IO=stdout)

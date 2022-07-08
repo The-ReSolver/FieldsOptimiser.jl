@@ -1,6 +1,8 @@
 # This file contains the definitions required to perform a gradient descent
 # optimisation on a RPCF field.
 
+# NOTE: step size >1e-7 causes blow-up (without projections)
+# NOTE: step size >1e-9 causes blow-up (with Leray and slip correction)
 function gd!(x, fg, α, maxiter, tol::Float64=1e-3)
     # initialise trace vector to hold iteration information
     trace = []

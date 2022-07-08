@@ -1,7 +1,7 @@
 name = "FieldsOptimiser"
 uuid = "a304cb5d-36c1-49b8-9a39-a4be8ac85cf4"
 authors = ["Thomas Burton <tburton5572@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 FDGrids = "28eb41cd-435a-4ede-8bdb-f2685fc03e8c"
